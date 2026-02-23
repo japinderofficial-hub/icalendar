@@ -16,11 +16,10 @@ To get information about all the commands, use the ``-h`` option.
 
     icalendar -h
 
+View an event
+=============
 
-Read calendar from file
-=======================
-
-To view a readable summary of an event file that is in iCalendar format, pass the path of the iCalendar file to icalendar.
+To view a readable summary of an event file that is in icalendar format, pass the name of the icalendar file to ``icalendar``.
 
 .. code-block:: shell
 
@@ -41,18 +40,6 @@ The following is example output.
     Description:
 
     Your yearly evaluation is scheduled for next Tuesday. Please be on time.
-
-
-Read calendar from URL
-======================
-
-Download the :file:`.ics` file first, then pass it to icalendar.
-
-.. code-block:: shell
-
-    curl -fsSL "https://www.gov.uk/bank-holidays/england-and-wales.ics" -o cal.ics
-    icalendar cal.ics
-
 
 Shell-based mail client
 =======================

@@ -1,11 +1,12 @@
 """URI values from :rfc:`5545`."""
 
+
 from typing import Any, ClassVar
 
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import DEFAULT_ENCODING, to_unicode
+from icalendar.parser_tools import DEFAULT_ENCODING, _to_unicode
 
 
 class vUri(str):
@@ -64,17 +65,17 @@ class vUri(str):
         encoding: str = DEFAULT_ENCODING,
         /,
         params: dict[str, Any] | None = None,
-    ) -> Self:
-        value = to_unicode(value, encoding=encoding)
+    ):
+        value = _to_unicode(value, encoding=encoding)
         self = super().__new__(cls, value)
         self.params = Parameters(params)
         return self
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return self.encode(DEFAULT_ENCODING)
 
     @classmethod
-    def from_ical(cls, ical: str | bytes) -> Self:
+    def from_ical(cls, ical):
         try:
             return cls(ical)
         except Exception as e:
@@ -120,6 +121,5 @@ class vUri(str):
         return f"{self.__class__.__name__}({self.uri!r})"
 
     from icalendar.param import FMTTYPE, GAP, LABEL, LANGUAGE, LINKREL, RELTYPE, VALUE
-
 
 __all__ = ["vUri"]

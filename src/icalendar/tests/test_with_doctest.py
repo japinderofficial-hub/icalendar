@@ -55,7 +55,10 @@ def test_docstring_of_python_file(module_name, env_for_doctest):
 
 # This collection needs to exclude .tox and other subdirectories
 REPOSITORY = HERE.parent.parent.parent
-DOCUMENT_PATHS = list(REPOSITORY.glob("**/*.rst"))
+DOCUMENT_PATHS = [
+    file
+    for file in REPOSITORY.glob("**/*.rst")
+]
 
 
 @pytest.mark.parametrize(

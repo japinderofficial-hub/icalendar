@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from datetime import date, datetime, tzinfo
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Union, cast
+
 
 if TYPE_CHECKING:
     from icalendar.compatibility import TypeGuard, TypeIs
 
 
-def is_date(dt: date | datetime) -> bool:
+def _is_date(dt: Union[date, datetime]) -> bool:
     """Check if a value is a date but not a datetime.
 
     This function distinguishes between ``date`` and ``datetime`` objects,
@@ -26,16 +27,16 @@ def is_date(dt: date | datetime) -> bool:
         .. code-block:: pycon
 
             >>> from datetime import date, datetime
-            >>> from icalendar.tools import is_date
-            >>> is_date(date(2024, 1, 15))
+            >>> from icalendar.tools import _is_date
+            >>> _is_date(date(2024, 1, 15))
             True
-            >>> is_date(datetime(2024, 1, 15, 10, 30))
+            >>> _is_date(datetime(2024, 1, 15, 10, 30))
             False
     """
     return isinstance(dt, date) and not isinstance(dt, datetime)
 
 
-def is_datetime(dt: date | datetime) -> TypeIs[datetime]:
+def _is_datetime(dt: Union[date, datetime]) -> TypeIs[datetime]:
     """Check if a value is a datetime.
 
     Parameters:
@@ -49,16 +50,16 @@ def is_datetime(dt: date | datetime) -> TypeIs[datetime]:
         .. code-block:: pycon
 
             >>> from datetime import date, datetime
-            >>> from icalendar.tools import is_datetime
-            >>> is_datetime(datetime(2024, 1, 15, 10, 30))
+            >>> from icalendar.tools import _is_datetime
+            >>> _is_datetime(datetime(2024, 1, 15, 10, 30))
             True
-            >>> is_datetime(date(2024, 1, 15))
+            >>> _is_datetime(date(2024, 1, 15))
             False
     """
     return isinstance(dt, datetime)
 
 
-def to_datetime(dt: date | datetime) -> datetime:
+def _to_datetime(dt: Union[date, datetime]) -> datetime:
     """Convert a date to a datetime.
 
     If the input is already a ``datetime``, it is returned unchanged.
@@ -75,18 +76,18 @@ def to_datetime(dt: date | datetime) -> datetime:
         .. code-block:: pycon
 
             >>> from datetime import date, datetime
-            >>> from icalendar.tools import to_datetime
-            >>> to_datetime(date(2024, 1, 15))
+            >>> from icalendar.tools import _to_datetime
+            >>> _to_datetime(date(2024, 1, 15))
             datetime.datetime(2024, 1, 15, 0, 0)
-            >>> to_datetime(datetime(2024, 1, 15, 10, 30))
+            >>> _to_datetime(datetime(2024, 1, 15, 10, 30))
             datetime.datetime(2024, 1, 15, 10, 30)
     """
-    if is_date(dt):
+    if _is_date(dt):
         return datetime(dt.year, dt.month, dt.day)  # noqa: DTZ001
     return cast("datetime", dt)
 
 
-def is_pytz(tz: tzinfo) -> bool:
+def _is_pytz(tz: tzinfo) -> bool:
     """Check if a timezone is a pytz timezone.
 
     pytz timezones require special handling with ``localize()`` and
@@ -102,7 +103,7 @@ def is_pytz(tz: tzinfo) -> bool:
     return hasattr(tz, "localize")
 
 
-def is_pytz_dt(dt: date | datetime) -> TypeGuard[datetime]:
+def _is_pytz_dt(dt: Union[date, datetime]) -> TypeGuard[datetime]:
     """Check if a datetime uses a pytz timezone.
 
     This function checks whether the datetime has a timezone attached
@@ -115,10 +116,10 @@ def is_pytz_dt(dt: date | datetime) -> TypeGuard[datetime]:
         ``True`` if the value is a ``datetime`` with a pytz timezone,
         ``False`` otherwise.
     """
-    return is_datetime(dt) and (tzinfo := dt.tzinfo) is not None and is_pytz(tzinfo)
+    return _is_datetime(dt) and (tzinfo := dt.tzinfo) is not None and _is_pytz(tzinfo)
 
 
-def normalize_pytz(dt: date | datetime) -> date | datetime:
+def _normalize_pytz(dt: Union[date, datetime]) -> Union[date, datetime]:
     """Normalize a datetime after calculations when using pytz.
 
     pytz requires the ``normalize()`` function to be called after arithmetic
@@ -131,16 +132,9 @@ def normalize_pytz(dt: date | datetime) -> date | datetime:
     Returns:
         The normalized datetime if it uses pytz, otherwise the input unchanged.
     """
-    if is_pytz_dt(dt):
+    if _is_pytz_dt(dt):
         return dt.tzinfo.normalize(dt)  # type: ignore[attr-defined]
     return dt
 
 
-__all__ = [
-    "is_date",
-    "is_datetime",
-    "is_pytz",
-    "is_pytz_dt",
-    "normalize_pytz",
-    "to_datetime",
-]
+__all__ = []

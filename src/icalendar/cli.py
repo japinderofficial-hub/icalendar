@@ -4,7 +4,6 @@
 import argparse
 import sys
 from datetime import datetime
-from pathlib import Path
 
 from icalendar import __version__
 from icalendar.cal.calendar import Calendar
@@ -36,7 +35,7 @@ def _format_attendees(attendees):
     return "\n".join(s.rjust(len(s) + 5) for s in map(_format_name, attendees))
 
 
-def view(event):
+def _view(event):
     """Make a human readable summary of an iCalendar file.
 
     :returns str: Human readable summary.
@@ -75,15 +74,19 @@ def view(event):
 {description}"""
 
 
-def main():
+def _main():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        "calendar_files", nargs="+", help="one or more .ics files (use '-' for stdin)"
+        "calendar_files", nargs="+",
+        help="one or more .ics files (use '-' for stdin)"
     )
 
     parser.add_argument(
-        "--output", "-o", default="-", help="output file path (use '-' for stdout)"
+        "--output",
+        "-o",
+        default="-",
+        help="output file path (use '-' for stdout)"
     )
 
     parser.add_argument(
@@ -100,7 +103,7 @@ def main():
         output_file = sys.stdout
         close_output = False
     else:
-        output_file = Path(argv.output).open("w", encoding="utf-8")  # noqa: SIM115
+        output_file = open(argv.output, "w", encoding="utf-8")
         close_output = True
 
     try:
@@ -110,14 +113,13 @@ def main():
                 f = sys.stdin
                 close_input = False
             else:
-                f = Path(path).open(encoding="utf-8-sig")  # noqa: SIM115
+                f = open(path, "r", encoding="utf-8-sig")
                 close_input = True
 
             try:
                 calendar = Calendar.from_ical(f.read())
-                output_file.writelines(
-                    view(event) + "\n\n" for event in calendar.walk("vevent")
-                )
+                for event in calendar.walk("vevent"):
+                    output_file.write(_view(event) + "\n\n")
             finally:
                 if close_input:
                     f.close()
@@ -125,8 +127,7 @@ def main():
         if close_output:
             output_file.close()
 
-
-__all__ = ["main", "view"]
+__all__ = []
 
 if __name__ == "__main__":
-    main()
+    _main()

@@ -72,7 +72,7 @@ class Conference:
     language: str | None = None
 
     @classmethod
-    def from_uri(cls, uri: vUri | str) -> Conference:
+    def from_uri(cls, uri: vUri | str):
         """Create a Conference from a URI."""
         params = uri.params if isinstance(uri, vUri) else {}
         return cls(

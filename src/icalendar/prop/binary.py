@@ -7,7 +7,7 @@ from typing import ClassVar
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import to_unicode
+from icalendar.parser_tools import _to_unicode
 
 
 class vBinary:
@@ -17,30 +17,30 @@ class vBinary:
     params: Parameters
     obj: str
 
-    def __init__(self, obj: str | bytes, params: dict[str, str] | None = None) -> None:
-        self.obj = to_unicode(obj)
+    def __init__(self, obj, params: dict[str, str] | None = None):
+        self.obj = _to_unicode(obj)
         self.params = Parameters(encoding="BASE64", value="BINARY")
         if params:
             self.params.update(params)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"vBinary({self.to_ical()})"
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return binascii.b2a_base64(self.obj.encode("utf-8"))[:-1]
 
     @staticmethod
-    def from_ical(ical: str | bytes) -> bytes:
+    def from_ical(ical):
         try:
             return base64.b64decode(ical)
         except ValueError as e:
             raise ValueError("Not valid base 64 encoding.") from e
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         """self == other"""
         return isinstance(other, vBinary) and self.obj == other.obj
 
-    def __hash__(self) -> int:
+    def __hash__(self):
         """Hash of the vBinary object."""
         return hash(self.obj)
 

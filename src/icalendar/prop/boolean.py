@@ -52,18 +52,16 @@ class vBoolean(int):
 
     BOOL_MAP = CaselessDict({"true": True, "false": False})
 
-    def __new__(
-        cls, *args: Any, params: dict[str, Any] | None = None, **kwargs: Any
-    ) -> Self:
+    def __new__(cls, *args, params: dict[str, Any] | None = None, **kwargs):
         self = super().__new__(cls, *args, **kwargs)
         self.params = Parameters(params)
         return self
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return b"TRUE" if self else b"FALSE"
 
     @classmethod
-    def from_ical(cls, ical: str) -> bool:
+    def from_ical(cls, ical):
         try:
             return cls.BOOL_MAP[ical]
         except Exception as e:
@@ -73,8 +71,8 @@ class vBoolean(int):
     def examples(cls) -> list[Self]:
         """Examples of vBoolean."""
         return [
-            cls(True),
-            cls(False),
+            cls(True),  # noqa: FBT003
+            cls(False),  # noqa: FBT003
         ]
 
     from icalendar.param import VALUE

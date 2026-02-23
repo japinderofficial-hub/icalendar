@@ -8,7 +8,6 @@ Subpackages
    :maxdepth: 4
 
    icalendar.cal
-   icalendar.parser
    icalendar.prop
    icalendar.timezone
 
@@ -26,6 +25,7 @@ Submodules
    icalendar.enums
    icalendar.error
    icalendar.param
+   icalendar.parser
    icalendar.parser_tools
    icalendar.tools
    icalendar.version

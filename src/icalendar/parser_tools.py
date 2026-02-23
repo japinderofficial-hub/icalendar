@@ -1,9 +1,11 @@
+from typing import List, Union
+
 SEQUENCE_TYPES = (list, tuple)
 DEFAULT_ENCODING = "utf-8"
-ICAL_TYPE = str | bytes
+ICAL_TYPE = Union[str, bytes]
 
 
-def from_unicode(value: ICAL_TYPE, encoding="utf-8") -> bytes:
+def _from_unicode(value: ICAL_TYPE, encoding="utf-8") -> bytes:
     """Converts a value to bytes, even if it is already bytes.
 
     Parameters:
@@ -15,7 +17,7 @@ def from_unicode(value: ICAL_TYPE, encoding="utf-8") -> bytes:
     """
     if isinstance(value, bytes):
         return value
-    if isinstance(value, str):
+    elif isinstance(value, str):
         try:
             return value.encode(encoding)
         except UnicodeEncodeError:
@@ -24,7 +26,7 @@ def from_unicode(value: ICAL_TYPE, encoding="utf-8") -> bytes:
         return value
 
 
-def to_unicode(value: ICAL_TYPE, encoding="utf-8-sig") -> str:
+def _to_unicode(value: ICAL_TYPE, encoding="utf-8-sig") -> str:
     """Converts a value to Unicode, even if it is already a Unicode string.
 
     Parameters:
@@ -33,7 +35,7 @@ def to_unicode(value: ICAL_TYPE, encoding="utf-8-sig") -> str:
     """
     if isinstance(value, str):
         return value
-    if isinstance(value, bytes):
+    elif isinstance(value, bytes):
         try:
             return value.decode(encoding)
         except UnicodeDecodeError:
@@ -42,9 +44,9 @@ def to_unicode(value: ICAL_TYPE, encoding="utf-8-sig") -> str:
         return value
 
 
-def data_encode(
-    data: ICAL_TYPE | dict | list, encoding=DEFAULT_ENCODING
-) -> bytes | list[bytes] | dict:
+def _data_encode(
+    data: Union[ICAL_TYPE, dict, list], encoding=DEFAULT_ENCODING
+) -> Union[bytes, List[bytes], dict]:
     """Encode all datastructures to the given encoding.
 
     Currently Unicode strings, dicts, and lists are supported.
@@ -55,18 +57,12 @@ def data_encode(
     # https://stackoverflow.com/questions/1254454/fastest-way-to-convert-a-dicts-keys-values-from-unicode-to-str
     if isinstance(data, str):
         return data.encode(encoding)
-    if isinstance(data, dict):
-        return dict(map(data_encode, iter(data.items())))
-    if isinstance(data, (list, tuple)):
-        return list(map(data_encode, data))
-    return data
+    elif isinstance(data, dict):
+        return dict(map(_data_encode, iter(data.items())))
+    elif isinstance(data, list) or isinstance(data, tuple):
+        return list(map(_data_encode, data))
+    else:
+        return data
 
 
-__all__ = [
-    "DEFAULT_ENCODING",
-    "ICAL_TYPE",
-    "SEQUENCE_TYPES",
-    "data_encode",
-    "from_unicode",
-    "to_unicode",
-]
+__all__ = []

@@ -32,7 +32,6 @@ from icalendar.enums import (
     VALUE,
 )
 from icalendar.error import (
-    BrokenCalendarProperty,
     ComponentEndMissing,
     ComponentStartMissing,
     FeatureWillBeRemovedInFutureVersion,
@@ -59,7 +58,7 @@ from icalendar.prop import (
     vAdr,
     vBinary,
     vBoolean,
-    vBroken,
+    vBrokenProperty,
     vCalAddress,
     vCategory,
     vDate,
@@ -115,7 +114,6 @@ __all__ = [
     "Alarms",
     "Availability",
     "Available",
-    "BrokenCalendarProperty",
     "Calendar",
     "Component",
     "ComponentEndMissing",
@@ -149,7 +147,7 @@ __all__ = [
     "vAdr",
     "vBinary",
     "vBoolean",
-    "vBroken",
+    "vBrokenProperty",
     "vCalAddress",
     "vCategory",
     "vDDDLists",

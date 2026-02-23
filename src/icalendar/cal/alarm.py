@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
 from icalendar.attr import (
     CONCEPTS_TYPE_SETTER,
@@ -39,9 +39,8 @@ class Alarm(Component):
 
     Example:
 
-        The following example creates an alarm which uses an audio file
-        from an FTP server.
-
+        The following example creates an alarm which uses an audio file from an FTP server.        
+        
         .. code-block:: pycon
 
             >>> from icalendar import Alarm
@@ -142,14 +141,14 @@ class Alarm(Component):
     changed in the alarm component. If the value of any "ACKNOWLEDGED" property
     in the alarm changes and is greater than or equal to the trigger time of the alarm,
     then clients SHOULD dismiss or cancel any "alert" presented to the calendar user.
-    """,
+    """,  # noqa: E501
     )
 
     TRIGGER = create_single_property(
         "TRIGGER",
         "dt",
         (datetime, timedelta),
-        timedelta | datetime | None,
+        Optional[Union[timedelta, datetime]],
         """Purpose:  This property specifies when an alarm will trigger.
 
     Value Type:  The default value type is DURATION.  The value type can
@@ -164,7 +163,7 @@ class Alarm(Component):
     )
 
     @property
-    def TRIGGER_RELATED(self) -> str:
+    def TRIGGER_RELATED(self) -> str:  # noqa: N802
         """The RELATED parameter of the TRIGGER property.
 
         Values are either "START" (default) or "END".
@@ -188,7 +187,7 @@ class Alarm(Component):
         return trigger.params.get("RELATED", "START")
 
     @TRIGGER_RELATED.setter
-    def TRIGGER_RELATED(self, value: str):
+    def TRIGGER_RELATED(self, value: str):  # noqa: N802
         """Set "START" or "END"."""
         trigger = self.get("TRIGGER")
         if trigger is None:
@@ -232,7 +231,7 @@ class Alarm(Component):
         ()
         >>> alarm.triggers.absolute
         ()
-        """
+        """  # noqa: E501
         start = []
         end = []
         absolute = []
@@ -268,14 +267,14 @@ class Alarm(Component):
     def new(
         cls,
         /,
-        attendees: list[vCalAddress] | None = None,
+        attendees: Optional[list[vCalAddress]] = None,
         concepts: CONCEPTS_TYPE_SETTER = None,
-        description: str | None = None,
+        description: Optional[str] = None,
         links: LINKS_TYPE_SETTER = None,
         refids: list[str] | str | None = None,
         related_to: RELATED_TO_TYPE_SETTER = None,
-        summary: str | None = None,
-        uid: str | uuid.UUID | None = None,
+        summary: Optional[str] = None,
+        uid: Optional[str | uuid.UUID] = None,
     ):
         """Create a new alarm with all required properties.
 
@@ -295,8 +294,7 @@ class Alarm(Component):
             :class:`Alarm`
 
         Raises:
-            ~error.InvalidCalendar: If the content is not valid
-                according to :rfc:`5545`.
+            ~error.InvalidCalendar: If the content is not valid according to :rfc:`5545`.
 
         .. warning:: As time progresses, we will be stricter with the validation.
         """
@@ -311,11 +309,9 @@ class Alarm(Component):
         alarm.uid = uid
         alarm.attendees = attendees
         return alarm
-
     @classmethod
-    def example(cls, name: str = "example") -> Alarm:
+    def example(cls, name: str = "example") -> "Alarm":
         """Return the alarm example with the given name."""
         return cls.from_ical(get_example("alarms", name))
-
 
 __all__ = ["Alarm"]

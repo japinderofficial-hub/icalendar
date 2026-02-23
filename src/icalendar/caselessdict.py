@@ -1,12 +1,10 @@
 from __future__ import annotations
 
+from icalendar.parser_tools import _to_unicode
+
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Any, TypeVar
 
-from icalendar.parser_tools import to_unicode
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+from typing import Any, Optional, Iterable, Mapping, TypeVar
 
 try:
     from typing import Self
@@ -16,10 +14,7 @@ except ImportError:
 KT = TypeVar("KT")
 VT = TypeVar("VT")
 
-
-def canonsort_keys(
-    keys: Iterable[KT], canonical_order: Iterable[KT] | None = None
-) -> list[KT]:
+def _canonsort_keys(keys: Iterable[KT], canonical_order: Optional[Iterable[KT]] = None) -> list[KT]:
     """Sorts leading keys according to canonical_order.  Keys not specified in
     canonical_order will appear alphabetically at the end.
     """
@@ -29,11 +24,9 @@ def canonsort_keys(
     return sorted(head, key=lambda k: canonical_map[k]) + sorted(tail)
 
 
-def canonsort_items(
-    dict1: Mapping[KT, VT], canonical_order: Iterable[KT] | None = None
-) -> list[tuple[KT, VT]]:
+def _canonsort_items(dict1: Mapping[KT, VT], canonical_order: Optional[Iterable[KT]] = None) -> list[tuple[KT, VT]]:
     """Returns a list of items from dict1, sorted by canonical_order."""
-    return [(k, dict1[k]) for k in canonsort_keys(dict1.keys(), canonical_order)]
+    return [(k, dict1[k]) for k in _canonsort_keys(dict1.keys(), canonical_order)]
 
 
 class CaselessDict(OrderedDict):
@@ -45,46 +38,44 @@ class CaselessDict(OrderedDict):
         """Set keys to upper for initial dict."""
         super().__init__(*args, **kwargs)
         for key, value in self.items():
-            key_upper = to_unicode(key).upper()
+            key_upper = _to_unicode(key).upper()
             if key != key_upper:
                 super().__delitem__(key)
                 self[key_upper] = value
 
-    __hash__ = None
-
     def __getitem__(self, key: Any) -> Any:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().__getitem__(key.upper())
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         super().__setitem__(key.upper(), value)
 
     def __delitem__(self, key: Any) -> None:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         super().__delitem__(key.upper())
 
     def __contains__(self, key: Any) -> bool:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().__contains__(key.upper())
 
     def get(self, key: Any, default: Any = None) -> Any:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().get(key.upper(), default)
 
     def setdefault(self, key: Any, value: Any = None) -> Any:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().setdefault(key.upper(), value)
 
     def pop(self, key: Any, default: Any = None) -> Any:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().pop(key.upper(), default)
 
     def popitem(self) -> tuple[Any, Any]:
         return super().popitem()
 
     def has_key(self, key: Any) -> bool:
-        key = to_unicode(key)
+        key = _to_unicode(key)
         return super().__contains__(key.upper())
 
     def update(self, *args: Any, **kwargs: Any) -> None:
@@ -92,7 +83,7 @@ class CaselessDict(OrderedDict):
         mappings = list(args) + [kwargs]
         for mapping in mappings:
             if hasattr(mapping, "items"):
-                mapping = iter(mapping.items())  # noqa: PLW2901
+                mapping = iter(mapping.items())
             for key, value in mapping:
                 self[key] = value
 
@@ -118,13 +109,13 @@ class CaselessDict(OrderedDict):
         """Sorts keys according to the canonical_order for the derived class.
         Keys not specified in canonical_order will appear at the end.
         """
-        return canonsort_keys(self.keys(), self.canonical_order)
+        return _canonsort_keys(self.keys(), self.canonical_order)
 
     def sorted_items(self) -> list[tuple[Any, Any]]:
         """Sorts items according to the canonical_order for the derived class.
         Items not specified in canonical_order will appear at the end.
         """
-        return canonsort_items(self, self.canonical_order)
+        return _canonsort_items(self, self.canonical_order)
 
 
-__all__ = ["CaselessDict", "canonsort_items", "canonsort_keys"]
+__all__ = ["CaselessDict"]

@@ -44,15 +44,12 @@ class Image:
     """
 
     @classmethod
-    def from_property_value(cls, value: vUri | vBinary | vText) -> Image:
+    def from_property_value(cls, value: vUri | vBinary | vText):
         """Create an Image from a property value."""
         params: dict[str, str] = {}
         if not hasattr(value, "params"):
             raise TypeError("Value must be URI or BINARY.")
-        try:
-            value_type = value.params.get("VALUE", "").upper()
-        except (AttributeError, TypeError) as err:
-            raise TypeError("Value must have a valid params attribute.") from err
+        value_type = value.params.get("VALUE", "").upper()
         if value_type == "URI" or isinstance(value, vUri):
             params["uri"] = str(value)
         elif isinstance(value, vBinary):
@@ -79,7 +76,7 @@ class Image:
         fmttype: str | None = None,
         altrep: str | None = None,
         display: str | None = None,
-    ) -> None:
+    ):
         """Create a new image according to :rfc:`7986`."""
         if uri is not None and b64data is not None:
             raise ValueError("Image cannot have both URI and binary data (RFC 7986)")

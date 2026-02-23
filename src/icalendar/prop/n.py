@@ -1,11 +1,12 @@
 """N property from :rfc:`6350`."""
 
+
 from typing import Any, ClassVar, NamedTuple
 
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import DEFAULT_ENCODING, to_unicode
+from icalendar.parser_tools import DEFAULT_ENCODING, _to_unicode
 
 
 class NFields(NamedTuple):
@@ -86,7 +87,6 @@ class vN:
     def to_ical(self) -> bytes:
         """Generate vCard format with semicolon-separated fields."""
         from icalendar.prop.text import vText
-
         parts = [vText(f).to_ical().decode(DEFAULT_ENCODING) for f in self.fields]
         return ";".join(parts).encode(DEFAULT_ENCODING)
 
@@ -102,17 +102,17 @@ class vN:
         """
         from icalendar.parser import split_on_unescaped_semicolon
 
-        ical = to_unicode(ical)
+        ical = _to_unicode(ical)
         fields = split_on_unescaped_semicolon(ical)
         if len(fields) != 5:
             raise ValueError(f"N must have exactly 5 fields, got {len(fields)}: {ical}")
         return NFields(*fields)
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         """self == other"""
         return isinstance(other, vN) and self.fields == other.fields
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation."""
         return f"{self.__class__.__name__}({self.fields}, params={self.params})"
 
@@ -156,6 +156,5 @@ class vN:
     def examples(cls) -> list[Self]:
         """Examples of vN."""
         return [cls(("Doe", "John", "M.", "Dr.", "Jr."))]
-
 
 __all__ = ["NFields", "vN"]

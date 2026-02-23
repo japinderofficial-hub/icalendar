@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Sequence
 
 from icalendar.attr import (
     CONCEPTS_TYPE_SETTER,
@@ -35,7 +35,6 @@ from icalendar.error import InvalidCalendar
 from .component import Component
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from datetime import date
 
 
@@ -102,19 +101,19 @@ class Available(Component):
         comments: list[str] | str | None = None,
         concepts: CONCEPTS_TYPE_SETTER = None,
         contacts: list[str] | str | None = None,
-        created: date | None = None,
-        description: str | None = None,
-        end: datetime | None = None,
-        last_modified: date | None = None,
+        created: Optional[date] = None,
+        description: Optional[str] = None,
+        end: Optional[datetime] = None,
+        last_modified: Optional[date] = None,
         links: LINKS_TYPE_SETTER = None,
-        location: str | None = None,
+        location: Optional[str] = None,
         refids: list[str] | str | None = None,
         related_to: RELATED_TO_TYPE_SETTER = None,
-        sequence: int | None = None,
-        stamp: date | None = None,
-        start: datetime | None = None,
-        summary: str | None = None,
-        uid: str | uuid.UUID | None = None,
+        sequence: Optional[int] = None,
+        stamp: Optional[date] = None,
+        start: Optional[datetime] = None,
+        summary: Optional[str] = None,
+        uid: Optional[str | uuid.UUID] = None,
     ):
         """Create a new Available component with all required properties.
 
@@ -150,8 +149,7 @@ class Available(Component):
             :class:`Available`
 
         Raises:
-            ~error.InvalidCalendar: If the content is not valid
-                according to :rfc:`7953`.
+            ~error.InvalidCalendar: If the content is not valid according to :rfc:`7953`.
 
         .. warning:: As time progresses, we will be stricter with the validation.
         """

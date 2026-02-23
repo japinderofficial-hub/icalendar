@@ -1,12 +1,11 @@
 """CATEGORIES property values from :rfc:`5545`."""
 
-from collections.abc import Iterator
 from typing import Any, ClassVar
 
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import to_unicode
+from icalendar.parser_tools import _to_unicode
 from icalendar.prop.text import vText
 
 
@@ -22,10 +21,10 @@ class vCategory:
         self.cats: list[vText | str] = [vText(c) for c in c_list]
         self.params = Parameters(params)
 
-    def __iter__(self) -> Iterator[vText | str]:
+    def __iter__(self):
         return iter(self.cats)
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return b",".join(
             [
                 c.to_ical() if hasattr(c, "to_ical") else vText(c).to_ical()
@@ -57,18 +56,18 @@ class vCategory:
             # Already split by Component.from_ical()
             return ical
         # Legacy: simple comma split (no escaping handled)
-        ical = to_unicode(ical)
+        ical = _to_unicode(ical)
         return ical.split(",")
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         """self == other"""
         return isinstance(other, vCategory) and self.cats == other.cats
 
-    def __hash__(self) -> int:
+    def __hash__(self):
         """Hash of the vCategory object."""
         return hash(tuple(self.cats))
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation."""
         return f"{self.__class__.__name__}({self.cats}, params={self.params})"
 

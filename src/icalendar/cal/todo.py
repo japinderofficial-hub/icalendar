@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Sequence
 
 from icalendar.attr import (
     CONCEPTS_TYPE_SETTER,
@@ -48,8 +48,6 @@ from icalendar.cal.component import Component
 from icalendar.cal.examples import get_example
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from icalendar.alarms import Alarms
     from icalendar.enums import CLASS, STATUS
     from icalendar.prop import vCalAddress
@@ -151,14 +149,14 @@ class Todo(Component):
         "dt",
         (datetime, date),
         date,
-        'The "DTSTART" property for a "VTODO" specifies the inclusive start of the Todo.',
+        'The "DTSTART" property for a "VTODO" specifies the inclusive start of the Todo.',  # noqa: E501
     )
     DUE = create_single_property(
         "DUE",
         "dt",
         (datetime, date),
         date,
-        'The "DUE" property for a "VTODO" calendar component specifies the non-inclusive end of the Todo.',
+        'The "DUE" property for a "VTODO" calendar component specifies the non-inclusive end of the Todo.',  # noqa: E501
     )
     DURATION = property(
         property_get_duration,
@@ -380,8 +378,7 @@ class Todo(Component):
             :class:`Todo`
 
         Raises:
-            ~error.InvalidCalendar: If the content is not valid
-                according to :rfc:`5545`.
+            ~error.InvalidCalendar: If the content is not valid according to :rfc:`5545`.
 
         .. warning:: As time progresses, we will be stricter with the validation.
         """
@@ -416,11 +413,11 @@ class Todo(Component):
         if cls._validate_new:
             cls._validate_start_and_end(start, end)
         return todo
-
+    
+  
     @classmethod
-    def example(cls, name: str = "example") -> Todo:
+    def example(cls, name: str = "example") -> "Todo":
         """Return the todo example with the given name."""
         return cls.from_ical(get_example("todos", name))
-
 
 __all__ = ["Todo"]

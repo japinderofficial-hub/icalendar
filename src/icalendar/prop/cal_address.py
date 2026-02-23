@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import DEFAULT_ENCODING, to_unicode
+from icalendar.parser_tools import DEFAULT_ENCODING, _to_unicode
 
 
 class vCalAddress(str):
@@ -61,28 +61,28 @@ class vCalAddress(str):
 
     def __new__(
         cls,
-        value: str | bytes,
-        encoding: str = DEFAULT_ENCODING,
+        value,
+        encoding=DEFAULT_ENCODING,
         /,
         params: dict[str, Any] | None = None,
-    ) -> Self:
-        value = to_unicode(value, encoding=encoding)
+    ):
+        value = _to_unicode(value, encoding=encoding)
         self = super().__new__(cls, value)
         self.params = Parameters(params)
         return self
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"vCalAddress('{self}')"
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return self.encode(DEFAULT_ENCODING)
 
     @classmethod
-    def from_ical(cls, ical: str | bytes) -> Self:
+    def from_ical(cls, ical) -> Self:
         return cls(ical)
 
     @property
-    def ical_value(self) -> str:
+    def ical_value(self):
         """The ``mailto:`` part of the address."""
         return str(self)
 
@@ -140,7 +140,7 @@ class vCalAddress(str):
         role: str | None = None,
         rsvp: bool | None = None,  # noqa: FBT001, RUF100
         sent_by: str | None = None,
-    ) -> Self:
+    ):
         """Create a new vCalAddress with RFC 5545 parameters.
 
         Creates a vCalAddress instance with automatic mailto: prefix handling

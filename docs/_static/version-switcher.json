@@ -4,14 +4,10 @@
         "url": "https://icalendar.readthedocs.io/en/latest/"
     },
     {
-        "name": "7.x (stable)",
-        "version": "v7.0.1",
+        "name": "6.x (stable)",
+        "version": "v6.3.2",
         "url": "https://icalendar.readthedocs.io/en/stable/",
-        "preferred": true
-    },
-    {
-        "version": "6.x",
-        "url": "https://icalendar.readthedocs.io/en/6.x/"
+        "preferred": "true"
     },
     {
         "version": "5.x",

@@ -4,7 +4,6 @@ See https://datatracker.ietf.org/doc/html/rfc7265#section-3.6
 """
 
 from datetime import date, datetime, time, timedelta
-from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -28,11 +27,12 @@ from icalendar import (
     vUri,
     vUTCOffset,
 )
+from zoneinfo import ZoneInfo
 
 JCAL_PAIRS = [
     (["attach", {}, "binary", "SGVsbG8gV29ybGQh"], vBinary("SGVsbG8gV29ybGQh")),
-    (["x-non-smoking", {}, "boolean", True], vBoolean(True)),
-    (["x-non-smoking", {}, "boolean", False], vBoolean(False)),
+    (["x-non-smoking", {}, "boolean", True], vBoolean(True)),  # noqa: FBT003
+    (["x-non-smoking", {}, "boolean", False], vBoolean(False)),  # noqa: FBT003
     (
         ["attendee", {}, "cal-address", "mailto:kewisch@example.com"],
         vCalAddress("mailto:kewisch@example.com"),

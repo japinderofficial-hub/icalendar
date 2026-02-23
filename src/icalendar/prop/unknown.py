@@ -1,5 +1,6 @@
 """UNKNOWN values from :rfc:`7265`."""
 
+
 from typing import ClassVar
 
 from icalendar.compatibility import Self
@@ -21,6 +22,5 @@ class vUnknown(vText):
         return [vUnknown("Some property text.")]
 
     from icalendar.param import VALUE
-
 
 __all__ = ["vUnknown"]

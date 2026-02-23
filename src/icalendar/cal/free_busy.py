@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from icalendar.attr import (
     CONCEPTS_TYPE_SETTER,
@@ -72,18 +72,18 @@ class FreeBusy(Component):
         "dt",
         (datetime, date),
         date,
-        'The "DTSTART" property for a "VFREEBUSY" specifies the inclusive start of the component.',
+        'The "DTSTART" property for a "VFREEBUSY" specifies the inclusive start of the component.',  # noqa: E501
     )
     end = DTEND = create_single_property(
         "DTEND",
         "dt",
         (datetime, date),
         date,
-        'The "DTEND" property for a "VFREEBUSY" calendar component specifies the non-inclusive end of the component.',
+        'The "DTEND" property for a "VFREEBUSY" calendar component specifies the non-inclusive end of the component.',  # noqa: E501
     )
 
     @property
-    def duration(self) -> timedelta | None:
+    def duration(self) -> Optional[timedelta]:
         """The duration computed from start and end."""
         if self.DTSTART is None or self.DTEND is None:
             return None
@@ -96,15 +96,15 @@ class FreeBusy(Component):
         comments: list[str] | str | None = None,
         concepts: CONCEPTS_TYPE_SETTER = None,
         contacts: list[str] | str | None = None,
-        end: date | datetime | None = None,
+        end: Optional[date | datetime] = None,
         links: LINKS_TYPE_SETTER = None,
-        organizer: vCalAddress | str | None = None,
+        organizer: Optional[vCalAddress | str] = None,
         refids: list[str] | str | None = None,
         related_to: RELATED_TO_TYPE_SETTER = None,
-        stamp: date | None = None,
-        start: date | datetime | None = None,
-        uid: str | uuid.UUID | None = None,
-        url: str | None = None,
+        stamp: Optional[date] = None,
+        start: Optional[date | datetime] = None,
+        uid: Optional[str | uuid.UUID] = None,
+        url: Optional[str] = None,
     ):
         """Create a new alarm with all required properties.
 
@@ -130,8 +130,7 @@ class FreeBusy(Component):
             :class:`FreeBusy`
 
         Raises:
-            ~error.InvalidCalendar: If the content is not valid
-                according to :rfc:`5545`.
+            ~error.InvalidCalendar: If the content is not valid according to :rfc:`5545`.
 
         .. warning:: As time progresses, we will be stricter with the validation.
         """

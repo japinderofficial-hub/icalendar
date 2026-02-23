@@ -4,8 +4,8 @@ from typing import Any, ClassVar
 
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
-from icalendar.parser import Parameters, escape_char
-from icalendar.parser_tools import DEFAULT_ENCODING, ICAL_TYPE, to_unicode
+from icalendar.parser import Parameters, _escape_char
+from icalendar.parser_tools import DEFAULT_ENCODING, ICAL_TYPE, _to_unicode
 
 
 class vText(str):
@@ -17,12 +17,12 @@ class vText(str):
 
     def __new__(
         cls,
-        value: ICAL_TYPE,
-        encoding: str = DEFAULT_ENCODING,
+        value,
+        encoding=DEFAULT_ENCODING,
         /,
         params: dict[str, Any] | None = None,
-    ) -> Self:
-        value = to_unicode(value, encoding=encoding)
+    ):
+        value = _to_unicode(value, encoding=encoding)
         self = super().__new__(cls, value)
         self.encoding = encoding
         self.params = Parameters(params)
@@ -32,10 +32,10 @@ class vText(str):
         return f"vText({self.to_ical()!r})"
 
     def to_ical(self) -> bytes:
-        return escape_char(self).encode(self.encoding)
+        return _escape_char(self).encode(self.encoding)
 
     @classmethod
-    def from_ical(cls, ical: ICAL_TYPE) -> Self:
+    def from_ical(cls, ical: ICAL_TYPE):
         return cls(ical)
 
     @property
@@ -52,7 +52,7 @@ class vText(str):
         return [name, self.params.to_jcal(), self.VALUE.lower(), str(self)]
 
     @classmethod
-    def examples(cls) -> list[Self]:
+    def examples(cls):
         """Examples of vText."""
         return [cls("Hello World!")]
 

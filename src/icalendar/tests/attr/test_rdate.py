@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from pprint import pprint
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import pytest
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
         Calendar,
     )
 
-C_RDATE = Event | Todo | Journal | TimezoneDaylight | TimezoneStandard
+C_RDATE = Union[Event, Todo, Journal, TimezoneDaylight, TimezoneStandard]
 
 
 @pytest.fixture(params=[Event, Todo, Journal, TimezoneDaylight, TimezoneStandard])

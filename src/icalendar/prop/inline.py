@@ -1,8 +1,7 @@
 from typing import Any
 
-from icalendar.compatibility import Self
 from icalendar.parser import Parameters
-from icalendar.parser_tools import DEFAULT_ENCODING, ICAL_TYPE, to_unicode
+from icalendar.parser_tools import DEFAULT_ENCODING, _to_unicode
 
 
 class vInline(str):
@@ -16,22 +15,21 @@ class vInline(str):
 
     def __new__(
         cls,
-        value: ICAL_TYPE,
-        encoding: str = DEFAULT_ENCODING,
+        value,
+        encoding=DEFAULT_ENCODING,
         /,
         params: dict[str, Any] | None = None,
-    ) -> Self:
-        value = to_unicode(value, encoding=encoding)
+    ):
+        value = _to_unicode(value, encoding=encoding)
         self = super().__new__(cls, value)
         self.params = Parameters(params)
         return self
 
-    def to_ical(self) -> bytes:
+    def to_ical(self):
         return self.encode(DEFAULT_ENCODING)
 
     @classmethod
-    def from_ical(cls, ical: ICAL_TYPE) -> Self:
+    def from_ical(cls, ical):
         return cls(ical)
-
 
 __all__ = ["vInline"]

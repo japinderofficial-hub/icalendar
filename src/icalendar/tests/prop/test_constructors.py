@@ -1,25 +1,23 @@
-import datetime
-
-import pytest
-
 from icalendar.prop import (
     vBoolean,
-    vCalAddress,
+    vInline,
+    vUTCOffset,
     vCategory,
-    vDatetime,
+    vCalAddress,
+    vWeekday,
     vDuration,
     vFloat,
-    vFrequency,
     vGeo,
-    vInline,
     vInt,
-    vMonth,
-    vRecur,
     vText,
-    vUri,
+    vMonth,
     vUTCOffset,
-    vWeekday,
+    vFrequency,
+    vRecur,
+    vDatetime,
+    vUri,
 )
+import datetime
 
 
 def test_param_vCategory():
@@ -87,28 +85,6 @@ def test_param_vMonth():
     obj = vMonth(1, params={"SOME_PARAM": "VALUE"})
     assert isinstance(obj, vMonth)
     assert obj.params["SOME_PARAM"] == "VALUE"
-
-
-def test_vMonth_validation():
-    """Test validation of vMonth with leap month format."""
-    # Valid cases
-    assert vMonth(1) == 1
-    assert vMonth("1") == 1
-    assert vMonth("5L") == 5
-    assert vMonth("5L").leap
-
-    # Invalid cases
-    with pytest.raises(ValueError, match="Invalid month"):
-        vMonth("L")  # Just L without digits
-
-    with pytest.raises(ValueError, match="Invalid month"):
-        vMonth("1LL")  # Double L
-
-    with pytest.raises(ValueError, match="Invalid month"):
-        vMonth("abc")  # Letters not in valid format
-
-    with pytest.raises(ValueError, match="Invalid month"):
-        vMonth("")  # Empty string
 
 
 def test_param_vUTCOffset():

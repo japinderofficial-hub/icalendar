@@ -1,20 +1,17 @@
 """Test the conversion of components."""
 
 import json
-
+from icalendar import Calendar, Event, Todo, Journal
 import pytest
 
-from icalendar import Calendar, Event, Journal, Todo
-
-
 @pytest.mark.parametrize(
-    "component_class",
+    ["component_class"],
     [
-        Calendar,
-        Event,
-        Todo,
-        Journal,
-    ],
+        (Calendar,),
+        (Event,),
+        (Todo,),
+        (Journal,),
+    ]
 )
 def test_component_conversion(component_class):
     """test conversion of components to jCal."""
@@ -27,12 +24,12 @@ def test_component_conversion(component_class):
 
 
 @pytest.mark.parametrize(
-    "component_class",
+    ["component_class"],
     [
-        Event,
-        Todo,
-        Journal,
-    ],
+        (Event,),
+        (Todo,),
+        (Journal,),
+    ]
 )
 def test_nesting(component_class):
     """Nested components turn up in an sub array."""
@@ -48,7 +45,6 @@ def test_nesting(component_class):
         [],
         [],
     ]
-
 
 def test_apply_json_serialization():
     """Check that we can convert to JSON."""

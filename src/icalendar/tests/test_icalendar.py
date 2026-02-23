@@ -6,8 +6,8 @@ from icalendar.parser import (
     Contentline,
     Contentlines,
     Parameters,
+    _foldline,
     dquote,
-    foldline,
     q_join,
     q_split,
 )
@@ -230,9 +230,9 @@ class IcalendarTestCase(unittest.TestCase):
         )
 
     def test_fold_line(self):
-        assert foldline("foo") == "foo"
+        assert _foldline("foo") == "foo"
         assert (
-            foldline(
+            _foldline(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing "
                 "elit. Vestibulum convallis imperdiet dui posuere.",
             )
@@ -244,11 +244,11 @@ class IcalendarTestCase(unittest.TestCase):
         # at least just but bytes in there
         # porting it to "run" under python 2 & 3 makes it not much better
         with pytest.raises(AssertionError):
-            foldline("привет".encode(), limit=3)
+            _foldline("привет".encode(), limit=3)
 
-        assert foldline("foobar", limit=4) == "foo\r\n bar"
+        assert _foldline("foobar", limit=4) == "foo\r\n bar"
         assert (
-            foldline(
+            _foldline(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
                 ". Vestibulum convallis imperdiet dui posuere.",
             )
@@ -256,7 +256,7 @@ class IcalendarTestCase(unittest.TestCase):
             + " Vestibulum conval\r\n lis imperdiet dui posuere."
         )
         assert (
-            foldline("DESCRIPTION:АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯ")
+            _foldline("DESCRIPTION:АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯ")
             == "DESCRIPTION:АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭ\r\n ЮЯ"
         )
 

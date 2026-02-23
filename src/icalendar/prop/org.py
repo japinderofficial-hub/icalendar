@@ -1,22 +1,21 @@
 """The ORG property from :rfc:`6350`."""
 
+
 from typing import Any, ClassVar
 
 from icalendar.compatibility import Self
 from icalendar.error import JCalParsingError
 from icalendar.parser import Parameters
-from icalendar.parser_tools import DEFAULT_ENCODING, to_unicode
+from icalendar.parser_tools import DEFAULT_ENCODING, _to_unicode
 
 
 class vOrg:
     r"""vCard ORG (Organization) structured property per :rfc:`6350#section-6.6.4`.
 
-    The ORG property specifies the organizational name and units
-    associated with the vCard.
+    The ORG property specifies the organizational name and units associated with the vCard.
 
-    Its value is a structured type consisting of components separated
-    by semicolons. The components are the organization name, followed
-    by zero or more levels of organizational unit names:
+    Its value is a structured type consisting of components separated by semicolons.
+    The components are the organization name, followed by zero or more levels of organizational unit names:
 
     .. code-block:: text
 
@@ -72,7 +71,6 @@ class vOrg:
     def to_ical(self) -> bytes:
         """Generate vCard format with semicolon-separated fields."""
         from icalendar.prop.text import vText
-
         parts = [vText(f).to_ical().decode(DEFAULT_ENCODING) for f in self.fields]
         return ";".join(parts).encode(DEFAULT_ENCODING)
 
@@ -88,17 +86,17 @@ class vOrg:
         """
         from icalendar.parser import split_on_unescaped_semicolon
 
-        ical = to_unicode(ical)
+        ical = _to_unicode(ical)
         fields = split_on_unescaped_semicolon(ical)
         if len(fields) < 1:
             raise ValueError(f"ORG must have at least 1 field: {ical}")
         return tuple(fields)
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other):
         """self == other"""
         return isinstance(other, vOrg) and self.fields == other.fields
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         """String representation."""
         return f"{self.__class__.__name__}({self.fields}, params={self.params})"
 
@@ -138,9 +136,8 @@ class vOrg:
         JCalParsingError.validate_property(jcal_property, cls)
         if len(jcal_property) < 4:  # name, params, value_type, at least 1 field
             raise JCalParsingError(
-                "ORG must have at least 4 elements"
-                " (name, params, value_type, org name),"
-                f" got {len(jcal_property)}"
+                f"ORG must have at least 4 elements (name, params, value_type, org name), "
+                f"got {len(jcal_property)}"
             )
         for i, field in enumerate(jcal_property[3:], start=3):
             JCalParsingError.validate_value_type(field, str, cls, i)
@@ -153,6 +150,5 @@ class vOrg:
     def examples(cls) -> list[Self]:
         """Examples of vOrg."""
         return [cls(("ABC Inc.", "North American Division", "Marketing"))]
-
 
 __all__ = ["vOrg"]

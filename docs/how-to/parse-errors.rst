@@ -11,8 +11,8 @@ By default, event components use error-tolerant parsing, allowing you to work wi
 
     .. code-block:: pycon
 
-        >>> from icalendar import Calendar, BrokenCalendarProperty
-        >>> from icalendar.prop import vBroken
+        >>> from icalendar import Calendar
+        >>> from icalendar.prop import vBrokenProperty
 
 
 Check for parsing errors
@@ -43,13 +43,13 @@ Errors are populated immediately after parsing, without needing to access the pr
 Access broken properties
 ------------------------
 
-Properties that fail to parse are converted to :class:`~icalendar.prop.broken.vBroken` instances.
+Properties that fail to parse are converted to :class:`~icalendar.prop.vBrokenProperty` instances.
 This preserves the raw value for inspection or round-trip serialization.
 
 .. code-block:: pycon
 
     >>> dtstart = event["DTSTART"]
-    >>> isinstance(dtstart, vBroken)
+    >>> isinstance(dtstart, vBrokenProperty)
     True
     >>> str(dtstart)
     'INVALID-DATE'
@@ -62,8 +62,8 @@ The broken property includes metadata about the parsing failure.
     'DTSTART'
     >>> dtstart.expected_type
     'vDDDTypes'
-    >>> isinstance(dtstart.parse_error, Exception)
-    True
+    >>> dtstart.parse_error
+    "Expected datetime, date, or time. Got: 'INVALID-DATE'"
 
 
 Work with partially valid data
@@ -114,28 +114,10 @@ You can iterate over errors to log or handle them.
     ...     print(f"{prop_name}: {error_msg}")
     DTSTART: Expected datetime, date, or time. Got: 'INVALID-DATE'
 
-To check if a specific property failed to parse, check if it is a :class:`~icalendar.prop.broken.vBroken`.
+To check if a specific property failed to parse, check if it is a :class:`~icalendar.prop.vBrokenProperty`.
 
 .. code-block:: pycon
 
-    >>> if isinstance(event["DTSTART"], vBroken):
+    >>> if isinstance(event["DTSTART"], vBrokenProperty):
     ...     print("DTSTART failed to parse")
     DTSTART failed to parse
-
-
-Catch broken property access
-----------------------------
-
-When you access a property descriptor like :attr:`event.DTSTART <icalendar.cal.event.Event.DTSTART>` on a broken property, a :class:`~icalendar.error.BrokenCalendarProperty` is raised with the original parse error chained as ``__cause__``.
-
-.. code-block:: pycon
-
-    >>> try:
-    ...     event.DTSTART
-    ... except BrokenCalendarProperty as e:
-    ...     print(f"Broken: {e}")
-    ...     print(f"Original error: {e.__cause__}")
-    Broken: Cannot access 'dt' on broken property 'DTSTART' (expected 'vDDDTypes'): Expected datetime, date, or time. Got: 'INVALID-DATE'
-    Original error: Expected datetime, date, or time. Got: 'INVALID-DATE'
-
-:class:`~icalendar.error.BrokenCalendarProperty` is a subclass of :class:`~icalendar.error.InvalidCalendar`, so existing ``except InvalidCalendar`` handlers will still catch it.

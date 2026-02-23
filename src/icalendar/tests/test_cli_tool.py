@@ -1,8 +1,8 @@
 import unittest
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, cli
+from zoneinfo import ZoneInfo
 
 INPUT = """
 BEGIN:VCALENDAR
@@ -100,7 +100,7 @@ class CLIToolTest(unittest.TestCase):
         calendar = Calendar.from_ical(INPUT)
         output = ""
         for event in calendar.walk("vevent"):
-            output += cli.view(event) + "\n\n"
+            output += cli._view(event) + "\n\n"
         assert output == PROPER_OUTPUT
 
 

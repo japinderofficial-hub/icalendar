@@ -2,12 +2,12 @@
 
 from datetime import datetime, time
 from typing import TYPE_CHECKING
-from zoneinfo import ZoneInfo
 
 import pytest
 
 from icalendar import Component, vDatetime, vDDDLists, vDDDTypes, vTime
-from icalendar.parser_tools import to_unicode
+from zoneinfo import ZoneInfo
+from icalendar.parser_tools import _to_unicode
 from icalendar.prop import VPROPERTY
 from icalendar.timezone.tzid import is_utc
 
@@ -73,7 +73,7 @@ def test_converting_to_utc_puts_a_z_in_the_end(utc_prop: VPROPERTY):
         properties whose time values are specified in UTC.
 
     """
-    ical = to_unicode(utc_prop.to_ical())
+    ical = _to_unicode(utc_prop.to_ical())
     assert ical.endswith("Z")
 
 
