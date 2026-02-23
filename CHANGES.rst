@@ -67,6 +67,7 @@ Documentation
 
 - Fixed the version switcher on Read the Docs, and documented the process for a major release. :issue:`1194`
 - Added usage examples for reading calendars from files and URL. :issue:`756`
+- Add type hints and convert docstrings to Google Style in cli.py. :issue:`938`
 
 
 7.0.0 (2026-02-11)
