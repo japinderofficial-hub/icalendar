@@ -39,6 +39,7 @@ New features
 ~~~~~~~~~~~~
 
 - Enabled :meth:`Calendar.from_ical <icalendar.cal.calendar.Calendar.from_ical>` to read calendars from files. :issue:`756`
+- Added :attr:`Calendar.journals <icalendar.cal.calendar.Calendar.journals>` property to retrieve all journal components. :issue:`1230`
 
 Bug fixes
 ~~~~~~~~~
