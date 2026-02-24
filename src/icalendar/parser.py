@@ -38,7 +38,7 @@ class HasToIcal(Protocol):
         ...
 
 
-def escape_char(text: str | bytes) -> str | bytes:
+def _escape_char(text: str | bytes) -> str | bytes:
     r"""Format value according to iCalendar TEXT escaping rules.
 
     Escapes special characters in text values according to :rfc:`5545#section-3.3.11` rules.
@@ -72,10 +72,10 @@ def escape_char(text: str | bytes) -> str | bytes:
     )
 
 
-def unescape_char(text: str | bytes) -> str | bytes | None:
+def _unescape_char(text: str | bytes) -> str | bytes | None:
     r"""Unescape iCalendar TEXT values.
 
-    Reverses the escaping applied by :func:`escape_char` according to
+    Reverses the escaping applied by :func:`_escape_char` according to
     :rfc:`5545#section-3.3.11` TEXT escaping rules.
 
     Parameters:
@@ -938,7 +938,7 @@ class Contentline(str):
 
             values = vText(values).to_ical()
         # elif isinstance(values, basestring):
-        #    values = escape_char(values)
+        #    values = _escape_char(values)
 
         # TODO: after unicode only, remove this
         # Convert back to unicode, after to_ical encoded it.
@@ -1070,7 +1070,6 @@ __all__ = [
     "Contentlines",
     "Parameters",
     "dquote",
-    "escape_char",
     "escape_string",
     "foldline",
     "param_value",
@@ -1081,7 +1080,6 @@ __all__ = [
     "split_on_unescaped_comma",
     "split_on_unescaped_semicolon",
     "unescape_backslash",
-    "unescape_char",
     "unescape_list_or_string",
     "unescape_string",
     "validate_param_value",
