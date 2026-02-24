@@ -32,9 +32,125 @@ class HasToIcal(Protocol):
         ...
 
 
-def param_value(
-    value: Sequence[str] | str | HasToIcal, always_quote: bool = False
-) -> str:
+def _escape_char(text: str | bytes) -> str | bytes:
+    r"""Format value according to iCalendar TEXT escaping rules.
+
+    Escapes special characters in text values according to :rfc:`5545#section-3.3.11` rules.
+    The order of replacements matters to avoid double-escaping.
+
+    Parameters:
+        text: The text to escape.
+
+    Returns:
+        The escaped text with special characters escaped.
+
+    Note:
+        The replacement order is critical:
+
+        1. ``\N`` -> ``\n`` (normalize newlines to lowercase)
+        2. ``\`` -> ``\\`` (escape backslashes)
+        3. ``;`` -> ``\;`` (escape semicolons)
+        4. ``,`` -> ``\,`` (escape commas)
+        5. ``\r\n`` -> ``\n`` (normalize line endings)
+        6. ``"\n"`` -> ``r"\n"`` (transform a newline character to a literal, or raw, newline character)
+    """
+    assert isinstance(text, (str, bytes))
+    # NOTE: ORDER MATTERS!
+    return (
+        text.replace(r"\N", "\n")
+        .replace("\\", "\\\\")
+        .replace(";", r"\;")
+        .replace(",", r"\,")
+        .replace("\r\n", r"\n")
+        .replace("\n", r"\n")
+    )
+
+
+def _unescape_char(text: str | bytes) -> str | bytes | None:
+    r"""Unescape iCalendar TEXT values.
+
+    Reverses the escaping applied by :func:`_escape_char` according to
+    :rfc:`5545#section-3.3.11` TEXT escaping rules.
+
+    Parameters:
+        text: The escaped text.
+
+    Returns:
+        The unescaped text, or ``None`` if ``text`` is neither ``str`` nor ``bytes``.
+
+    Note:
+        The replacement order is critical to avoid double-unescaping:
+
+        1. ``\N`` -> ``\n`` (intermediate step)
+        2. ``\r\n`` -> ``\n`` (normalize line endings)
+        3. ``\n`` -> newline (unescape newlines)
+        4. ``\,`` -> ``,`` (unescape commas)
+        5. ``\;`` -> ``;`` (unescape semicolons)
+        6. ``\\`` -> ``\`` (unescape backslashes last)
+    """
+    assert isinstance(text, (str, bytes))
+    # NOTE: ORDER MATTERS!
+    if isinstance(text, str):
+        return (
+            text.replace("\\N", "\\n")
+            .replace("\r\n", "\n")
+            .replace("\\n", "\n")
+            .replace("\\,", ",")
+            .replace("\\;", ";")
+            .replace("\\\\", "\\")
+        )
+    if isinstance(text, bytes):
+        return (
+            text.replace(b"\\N", b"\\n")
+            .replace(b"\r\n", b"\n")
+            .replace(b"\\n", b"\n")
+            .replace(b"\\,", b",")
+            .replace(b"\\;", b";")
+            .replace(b"\\\\", b"\\")
+        )
+    return None
+
+
+def foldline(line: str, limit: int=75, fold_sep: str="\r\n ") -> str:
+    """Make a string folded as defined in RFC5545
+    Lines of text SHOULD NOT be longer than 75 octets, excluding the line
+    break.  Long content lines SHOULD be split into a multiple line
+    representations using a line "folding" technique.  That is, a long
+    line can be split between any two characters by inserting a CRLF
+    immediately followed by a single linear white-space character (i.e.,
+    SPACE or HTAB).
+    """
+    assert isinstance(line, str)
+    assert "\n" not in line
+
+    # Use a fast and simple variant for the common case that line is all ASCII.
+    try:
+        line.encode("ascii")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
+    else:
+        return fold_sep.join(
+            line[i : i + limit - 1] for i in range(0, len(line), limit - 1)
+        )
+
+    ret_chars: list[str] = []
+    byte_count = 0
+    for char in line:
+        char_byte_len = len(char.encode(DEFAULT_ENCODING))
+        byte_count += char_byte_len
+        if byte_count >= limit:
+            ret_chars.append(fold_sep)
+            byte_count = char_byte_len
+        ret_chars.append(char)
+
+    return "".join(ret_chars)
+
+
+#################################################################
+# Property parameter stuff
+
+
+def param_value(value: Sequence[str] | str | HasToIcal, always_quote: bool = False) -> str:
     """Convert a parameter value to its iCalendar representation.
 
     Applies :rfc:`6868` escaping and optionally quotes the value according
@@ -558,13 +674,203 @@ def rfc_6868_escape(param_value: str) -> str:
     )
 
 
+<<<<<<< HEAD:src/icalendar/parser/parameter.py
+=======
+def unescape_list_or_string(val: str | list[str]) -> str | list[str]:
+    """Unescape a value that may be a string or list of strings.
+
+    Applies :func:`unescape_string` to the value. If the value is a list,
+    unescapes each element.
+
+    Parameters:
+        val: A string or list of strings to unescape.
+
+    Returns:
+        The unescaped values.
+    """
+    if isinstance(val, list):
+        return [unescape_string(s) for s in val]
+    return unescape_string(val)
+
+
+#########################################
+# parsing and generation of content lines
+
+
+class Contentline(str):
+    """A content line is basically a string that can be folded and parsed into
+    parts.
+    """
+
+    __slots__ = ("strict",)
+
+    def __new__(cls, value, strict=False, encoding=DEFAULT_ENCODING):
+        value = to_unicode(value, encoding=encoding)
+        assert "\n" not in value, (
+            "Content line can not contain unescaped new line characters."
+        )
+        self = super().__new__(cls, value)
+        self.strict = strict
+        return self
+
+    @classmethod
+    def from_parts(
+        cls,
+        name: ICAL_TYPE,
+        params: Parameters,
+        values,
+        sorted: bool = True,  # noqa: A002, FBT001
+    ):
+        """Turn a parts into a content line."""
+        assert isinstance(params, Parameters)
+        if hasattr(values, "to_ical"):
+            values = values.to_ical()
+        else:
+            from icalendar.prop import vText
+
+            values = vText(values).to_ical()
+        # elif isinstance(values, basestring):
+        #    values = _escape_char(values)
+
+        # TODO: after unicode only, remove this
+        # Convert back to unicode, after to_ical encoded it.
+        name = to_unicode(name)
+        values = to_unicode(values)
+        if params:
+            params = to_unicode(params.to_ical(sorted=sorted))
+            if params:
+                # some parameter values can be skipped during serialization
+                return cls(f"{name};{params}:{values}")
+        return cls(f"{name}:{values}")
+
+    def parts(self) -> tuple[str, Parameters, str]:
+        """Split the content line into ``name``, ``parameters``, and ``values`` parts.
+
+        Properly handles escaping with backslashes and double-quote sections
+        to avoid corrupting URL-encoded characters in values.
+
+        Example with parameter:
+
+        .. code-block:: text
+
+            DESCRIPTION;ALTREP="cid:part1.0001@example.org":The Fall'98 Wild
+
+        Example without parameters:
+
+        .. code-block:: text
+
+            DESCRIPTION:The Fall'98 Wild
+        """
+        try:
+            name_split: int | None = None
+            value_split: int | None = None
+            in_quotes: bool = False
+            escaped: bool = False
+
+            for i, ch in enumerate(self):
+                if ch == '"' and not escaped:
+                    in_quotes = not in_quotes
+                elif ch == "\\" and not in_quotes:
+                    escaped = True
+                    continue
+                elif not in_quotes and not escaped:
+                    # Find first delimiter for name
+                    if ch in ":;" and name_split is None:
+                        name_split = i
+                    # Find value delimiter (first colon)
+                    if ch == ":" and value_split is None:
+                        value_split = i
+
+                escaped = False
+
+            # Validate parsing results
+            if not value_split:
+                # No colon found - value is empty, use end of string
+                value_split = len(self)
+
+            # Extract name - if no delimiter,
+            #   take whole string for validate_token to reject
+            name = self[:name_split] if name_split else self
+            validate_token(name)
+
+            if not name_split or name_split + 1 == value_split:
+                # No delimiter or empty parameter section
+                raise ValueError("Invalid content line")  # noqa: TRY301
+            # Parse parameters - they still need to be escaped/unescaped
+            # for proper handling of commas, semicolons, etc. in parameter values
+            param_str = escape_string(self[name_split + 1 : value_split])
+            params = Parameters.from_ical(param_str, strict=self.strict)
+            params = Parameters(
+                (unescape_string(key), unescape_list_or_string(value))
+                for key, value in iter(params.items())
+            )
+            # Unescape backslash sequences in values but preserve URL encoding
+            values = unescape_backslash(self[value_split + 1 :])
+        except ValueError as exc:
+            raise ValueError(
+                f"Content line could not be parsed into parts: '{self}': {exc}"
+            ) from exc
+        return (name, params, values)
+
+    @classmethod
+    def from_ical(cls, ical, strict=False):
+        """Unfold the content lines in an iCalendar into long content lines."""
+        ical = to_unicode(ical)
+        # a fold is carriage return followed by either a space or a tab
+        return cls(UFOLD.sub("", ical), strict=strict)
+
+    def to_ical(self):
+        """Long content lines are folded so they are less than 75 characters
+        wide.
+        """
+        return foldline(self).encode(DEFAULT_ENCODING)
+
+
+class Contentlines(list):
+    """I assume that iCalendar files generally are a few kilobytes in size.
+    Then this should be efficient. for Huge files, an iterator should probably
+    be used instead.
+    """
+
+    def to_ical(self):
+        """Simply join self."""
+        return b"\r\n".join(line.to_ical() for line in self if line) + b"\r\n"
+
+    @classmethod
+    def from_ical(cls, st):
+        """Parses a string into content lines."""
+        st = to_unicode(st)
+        try:
+            # a fold is carriage return followed by either a space or a tab
+            unfolded = UFOLD.sub("", st)
+            lines = cls(Contentline(line) for line in NEWLINE.split(unfolded) if line)
+            lines.append("")  # '\r\n' at the end of every content line
+        except Exception as e:
+            raise ValueError("Expected StringType with content lines") from e
+        return lines
+
+
+>>>>>>> b0934429 (Rename escape_char and unescape_char to private (_prefix)):src/icalendar/parser.py
 __all__ = [
     "Parameters",
     "dquote",
+<<<<<<< HEAD:src/icalendar/parser/parameter.py
+=======
+    "escape_string",
+    "foldline",
+>>>>>>> b0934429 (Rename escape_char and unescape_char to private (_prefix)):src/icalendar/parser.py
     "param_value",
     "q_join",
     "q_split",
     "rfc_6868_escape",
     "rfc_6868_unescape",
+<<<<<<< HEAD:src/icalendar/parser/parameter.py
+=======
+    "split_on_unescaped_comma",
+    "split_on_unescaped_semicolon",
+    "unescape_backslash",
+    "unescape_list_or_string",
+    "unescape_string",
+>>>>>>> b0934429 (Rename escape_char and unescape_char to private (_prefix)):src/icalendar/parser.py
     "validate_param_value",
 ]
