@@ -21,7 +21,7 @@ Upgrading from 6.x to 7.x should have **no complications for most developers**, 
 
 We still recommend checking out the new features and giving feedback in the repository.
 
-7.0.2 (unreleased)
+7.0.2 (2026-02-24)
 ------------------
 
 Minor changes
@@ -30,21 +30,11 @@ Minor changes
 - Show required code changes in the CI output to help contributors solve the formatting issues. :pr:`1216`
 - Use ruff 0.15.0 for code formatting in :file:`tox.ini`. :pr:`1215`
 
-Breaking changes
-~~~~~~~~~~~~~~~~
-
-- ...
-
 New features
 ~~~~~~~~~~~~
 
 - Enabled :meth:`Calendar.from_ical <icalendar.cal.calendar.Calendar.from_ical>` to read calendars from files. :issue:`756`
 - Added :attr:`Calendar.journals <icalendar.cal.calendar.Calendar.journals>` property to retrieve all journal components. :issue:`1230`
-
-Bug fixes
-~~~~~~~~~
-
-- ...
 
 Documentation
 ~~~~~~~~~~~~~
