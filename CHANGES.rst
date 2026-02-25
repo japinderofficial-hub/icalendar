@@ -206,17 +206,21 @@ Minor changes
 - Created an :meth:`~cal.todo.Todo.example` method for the :class:`~cal.todo.Todo` component. See :issue:`743`.
 - Add type hints to :mod:`icalendar.caselessdict` file. See :issue:`938`.
 - For releases, added a step to update the version switcher for documentation.
+ - Fix double-unescaping in :meth:`vText.from_ical` and :meth:`vCategory.from_ical` by adjusting the internal unescaping logic. See :issue:`1008`.
 
 New features
 ~~~~~~~~~~~~
 
 - Added contributor list format and sorting instructions.
 
+<<<<<<< HEAD
 Bug fixes
 ~~~~~~~~~
 
 - Fix double-unescaping in :meth:`vText.from_ical` and :meth:`vCategory.from_ical` by removing ``_unescape_char()``. See :issue:`1008`.
 
+=======
+>>>>>>> d383b86a (Update changelog entry for vText/vCategory)
 7.0.0a2 (2025-11-29)
 --------------------
 
