@@ -18,7 +18,7 @@ def _format_name(address: str) -> str:
         address: An address object, such as mailto:name@example.com.
 
     Returns:
-        A formatted string like 'name <name@example.com>',
+        A formatted string, like 'name <name@example.com>',
         or an empty string if no email is found.
     """
     email = address.rsplit(":", maxsplit=1)[-1]
