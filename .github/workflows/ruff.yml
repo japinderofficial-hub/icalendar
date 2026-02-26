@@ -6,7 +6,7 @@ jobs:
     env:
       MESSAGE: |
         Your code is not formatted!
-        Please setup your development environment and run the formatting command.
+        Please set up your development environment and run the formatting command.
         https://icalendar.readthedocs.io/en/stable/contribute/development.html#code-format
     steps:
       - uses: actions/checkout@v6
