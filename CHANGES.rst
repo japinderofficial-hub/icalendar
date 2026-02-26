@@ -27,7 +27,8 @@ We still recommend checking out the new features and giving feedback in the repo
 Minor changes
 ~~~~~~~~~~~~~
 
-- ...
+- Show colorful required code changes in the CI output to help contributors solve the formatting issues. :pr:`1216`
+- Use ruff 0.15.0 for code formatting in :file:`tox.ini`. :pr:`1215`
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
@@ -87,6 +88,7 @@ Documentation
 
 - Fixed the version switcher on Read the Docs, and documented the process for a major release. :issue:`1194`
 - Added usage examples for reading calendars from files and URL. :issue:`756`
+- Add type hints and convert docstrings to Google Style in :file:`cli.py`. :issue:`938`
 
 
 7.0.0 (2026-02-11)
