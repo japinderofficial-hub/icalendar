@@ -15,7 +15,7 @@ def _format_name(address: str) -> str:
     """Format a display name and email from an address string.
 
     Parameters:
-        address: an address object, e.g. mailto:name@example.com
+        address: An address object, such as mailto:name@example.com.
 
     Returns:
         A formatted string like 'name <name@example.com>',
