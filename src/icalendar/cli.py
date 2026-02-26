@@ -32,7 +32,7 @@ def _format_attendees(attendees: list | str | vCalAddress) -> str:
     """Format the list of attendees.
 
     Parameters:
-        attendees: Either a list, a string or a vCalAddress object.
+        attendees: Either a list, a string, or a vCalAddress object.
 
     Returns:
         A formatted string of attendees, each indented by 5 spaces.
